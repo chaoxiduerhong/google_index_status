@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <title>GPT Perplexity|数据统计</title>
+</head>
+<body>
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4">数据统计</h1>
+        <p class="lead">浏览器管理，日志分析</p>
+        <hr class="my-4">
+        <a class="btn btn-primary btn-lg" href="/browser" role="button">浏览器管理</a>
+    </div>
+    <div class="total">
+        <div>内存使用率：{{memory_use_percent}}</div>
+        <div>总内存：{{memory_total}}</div>
+        <div>可用内存：{{memory_available}}</div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <script src="/jquery.min.js"></script>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <title>浏览器管理|列表</title>
+    <style>
+        .total-label{
+            width: 300px;
+            display: inline-block;
+            background: #efefef;
+            line-height: 20p;
+            padding: 2px 10px;
+            text-align: right;
+        }
+        .total-bar{
+            display: inline-block;
+            background: #9f8ee2;
+            height: 10px;
+            min-width:1px
+        }
+        #msg {
+            position: fixed;
+            color: #f40;
+            font-size: 13px;
+            /* font-weight: bold; */
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+            box-shadow: 0 0 5px;
+            margin-bottom: 5px;
+            top: 56px;
+            right: 45%;
+        }
+    </style>
+</head>
+<body>
+  <div class="container">
+      <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">浏览器管理</li>
+          </ol>
+      </nav>
+      <div id="msg"></div>
+      <div>
+          <strong>浏览器管理</strong>
+      </div>
+      <br>
+      <div class="">
+          <button type="button" class="btn btn-primary" onclick="open_all_browser()">打开所有窗口</button>
+          <button type="button" class="btn btn-primary" onclick="reload_page()">刷新</button>
+          <button type="button" class="btn btn-info" onclick="reorder()">排序</button>
+          <button type="button" class="btn btn-info" onclick="sync_port()">同步端口</button>
+          <button type="button" class="btn btn-warning" onclick="close_all_browser()">关闭所有窗口</button>
+      </div>
+      <br>
+
+      <table class="table">
+          <thead>
+            <tr>
+                <th>port</th>
+                <th>pid</th>
+                <th>status</th>
+                <th>运行状态</th>
+                <th>运行时间</th>
+                <th>proxy(<span style="color:#f40">设置后需要重启对应浏览器</span>)</th>
+                <th>action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in lists %}
+                <tr>
+                    <td>{{row.port}}</td>
+                    <td>{{row.pid}}</td>
+                    <td>{{row.process_status }}</td>
+                    <td>{{row.running_status }}</td>
+                    <td>{{row.running_time }}</td>
+                    <td style="width:32%;">
+                        <select class="form-control form-control-sm" id="switch_proxy" onchange="select_proxy({{row.port}}, this.value)">
+                            <option value="">已关闭</option>
+                            {% for proxy in proxy_list %}
+                                {% if "proxy_name" in row and row['proxy_name'] == proxy_list[proxy].name  %}
+                                    <option value="{{proxy_list[proxy].name}}" selected>【{{proxy_list[proxy].source_type}}】-【{{proxy_list[proxy].process_info}}】{{proxy_list[proxy].remarks}}</option>
+                                {% else %}
+                                    <option value="{{proxy_list[proxy].name}}">【{{proxy_list[proxy].source_type}}】-【{{proxy_list[proxy].process_info}}】{{proxy_list[proxy].remarks}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td style="width:18%;">
+                        <button class="btn btn-primary btn-sm" onclick="open_browser('{{row.name}}')">打开</button>
+                        <button class="btn btn-warning btn-sm" onclick="close_browser('{{row.name}}')">关闭</button>
+                        <button class="btn btn-warning btn-sm" onclick="restart_browser('{{row.name}}')">重启</button>
+                    </td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+  </div>
+  <script>
+
+    function open_all_browser(){
+        let confirmed = window.confirm('你确定要打开所有浏览器吗？')
+        if (confirmed) {
+            // 执行打开操作
+            $.ajax({
+                url: '/open_all_browser',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        alert("请求成功")
+                    } else {
+                        alert("请求失败")
+                    }
+                    reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+
+    }
+    function open_browser(name) {
+        let confirmed = window.confirm('你确定要打开这个浏览器吗？')
+        if (confirmed) {
+            // 执行打开操作
+            $.ajax({
+                url: '/open_browser',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                data: {
+                    uid: name
+                },
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        // alert("请求成功")
+                        to_msg_queue("请求成功")
+                    } else {
+                        alert("请求失败")
+                    }
+                    // reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+    function close_all_browser() {
+        let confirmed = window.confirm('你确定要关闭所有浏览器吗？')
+        if (confirmed) {
+            // 执行操作
+            $.ajax({
+                url: '/close_all_browser',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        alert("请求成功")
+                    } else {
+                        alert("请求失败")
+                    }
+                    reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+    function close_browser(name) {
+        let confirmed = window.confirm('你确定要关闭这个浏览器吗？')
+        if (confirmed) {
+            // 执行操作
+            $.ajax({
+                url: '/close_browser',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                data: {
+                    uid: name
+                },
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        // alert("请求成功")
+                        to_msg_queue("请求成功")
+                    } else {
+                        alert("请求失败")
+                    }
+                    // reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+    function restart_browser(name) {
+        let confirmed = window.confirm('确定要 重启 这个浏览器吗？')
+        if (confirmed) {
+            // 执行操作
+            $.ajax({
+                url: '/restart_browser',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                data: {
+                    uid: name
+                },
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        // alert("请求成功")
+                        to_msg_queue("成功 重启 " + name)
+                    } else {
+                        // alert("请求失败")
+                        to_msg_queue("失败 重启 " + name)
+                    }
+                    // reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+    function reorder(name) {
+        let confirmed = window.confirm('确定已经配置好窗口的尺寸了吗？')
+        if (confirmed) {
+            // 执行操作
+            $.ajax({
+                url: '/reorder',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                data: {
+                    uid: name
+                },
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        alert("请求成功")
+                    } else {
+                        alert("请求失败")
+                    }
+                    reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+    function sync_port() {
+        let confirmed = window.confirm('该操作会同步端口，并且会重启所有窗口，确定要操作吗？')
+        if (confirmed) {
+            // 执行操作
+            $.ajax({
+                url: '/update_browser_port',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                data: {
+                    uid: name
+                },
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        alert("请求成功")
+                    } else {
+                        alert("请求失败")
+                    }
+                    reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+
+    function reload_page() {
+        location.reload();
+    }
+
+    function to_msg_queue(msg) {
+        localStorage.setItem('show_msg_queue', msg);
+    }
+    function show_msg() {
+        var msgDiv = document.getElementById("msg");
+        var msg = localStorage.getItem('show_msg_queue');
+        if (msgDiv && msg) {
+            msgDiv.innerText = msg;
+            msgDiv.style.display = 'block';
+            setTimeout(function() {
+                msgDiv.innerText = "";
+                msgDiv.style.display = 'none';
+            }, 2000);
+        }
+    }
+
+    function select_proxy(port, proxy_name) {
+        let selectElement = document.getElementById("switch_proxy");
+        // 触发 confirm 事件
+        // 如果确认，则执行 alert
+        $.ajax({
+            url: '/set_proxy',
+            type: 'GET', // 请求类型为GET
+            dataType: 'json', // 期望的返回数据类型
+            data: {
+                port: port,
+                proxy_name: proxy_name
+            },
+            success: function(response) {
+                // 请求成功时的回调函数
+                if (response.code === 200){
+                    to_msg_queue("操作成功, 请重启浏览器后生效")
+                } else {
+                    to_msg_queue("操作失败")
+                }
+                show_msg()
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                // 请求失败时的回调函数
+                console.log('请求失败:', textStatus, errorThrown);
+            }
+        });
+
+    }
+
+    function sync_proxy(){
+        // 触发 confirm 事件
+        // 如果确认，则执行 alert
+        let confirmed = window.confirm('该操作会重置当前窗口对应的代理设置，确定要执行吗?')
+            if (confirmed) {
+            $.ajax({
+                url: '/proxy_to_browser',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        alert("操作完成")
+                    } else {
+                        alert("操作失败")
+                    }
+                    reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+    function sync_proxy_1v3(){
+        // 触发 confirm 事件
+        // 如果确认，则执行 alert
+        let confirmed = window.confirm('该操作会重置当前窗口对应的代理设置，确定要执行吗?')
+            if (confirmed) {
+            $.ajax({
+                url: '/proxy_to_browser?mode=1v3',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        alert("操作完成")
+                    } else {
+                        alert("操作失败")
+                    }
+                    reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+    function sync_proxy_waiting(){
+        // 触发 confirm 事件
+        // 如果确认，则执行 alert
+        let confirmed = window.confirm('该操作用于重新检测所有代理，并且重置当前所选的所有代理，确定要操作吗？')
+            if (confirmed) {
+            $.ajax({
+                url: '/set_all_proxy_status_waiting',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        alert("操作完成")
+                    } else {
+                        alert("操作失败")
+                    }
+                    reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+
+    function sync_actived_proxy(){
+        // 触发 confirm 事件
+        // 如果确认，则执行 alert
+        let confirmed = window.confirm('该操作用于重新检测所有代理，并且重置当前所选的所有代理，确定要操作吗？')
+            if (confirmed) {
+            $.ajax({
+                url: '/actived_proxy_to_browser',
+                type: 'GET', // 请求类型为GET
+                dataType: 'json', // 期望的返回数据类型
+                success: function(response) {
+                    // 请求成功时的回调函数
+                    if (response.code === 200){
+                        alert("操作完成")
+                    } else {
+                        alert("操作失败")
+                    }
+                    reload_page()
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // 请求失败时的回调函数
+                    console.log('请求失败:', textStatus, errorThrown);
+                }
+            });
+        }
+    }
+  </script>
+</body>
+</html>

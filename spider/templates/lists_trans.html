@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <script src="/jquery.min.js"></script>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <title>Trans|列表</title>
+</head>
+<body>
+  <div class="container">
+      <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">列表</li>
+          </ol>
+      </nav>
+      <div>
+          <strong>数据列表（100条）</strong>
+          <a href="/lists_trans?{{first_page_link}}">第一页</a>
+          <a href="/lists_trans?{{pre_page_link}}">上一页</a>
+          <a href="/lists_trans?{{next_page_link}}">下一页</a>
+      </div>
+      <div class="filter">
+          <form action="">
+              <div class="input-group">
+                  <select class="form-select" id="is_loss_link" name="is_loss_link">
+                    <option value="">是否丢失链接</option>
+                    {% for pr in  is_loss_link_list %}
+                      {% if pr == params['is_loss_link'] %}
+                        <option value="{{pr}}" selected> {{is_loss_link_list[pr]}} </option>
+                      {% else %}
+                        <option value="{{pr}}"> {{is_loss_link_list[pr]}} </option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                  <input type="datetime-local" aria-label="start time" id="start_time" step="1" name="start_time" class="form-control" value="{{params['start_time']}}" placeholder="start time">
+                  <input type="datetime-local" aria-label="end time" id="end_time" step="1" name="end_time" class="form-control" value="{{params['end_time']}}" placeholder="end time">
+                  <input type="text" class="form-control" placeholder="bid" id="bid" name="bid" value="{{params['bid']}}">
+                  <button class="btn btn-outline-secondary" type="submit">搜索</button>
+                  <a class="btn btn-outline-secondary" href="/list_trans">重置</a>
+              </div>
+          </form>
+      </div>
+      <br>
+      <table class="table">
+          <thead>
+            <tr>
+                <th>bid</th>
+                <th>created at</th>
+                <th>is_loss_link</th>
+                <th>product_consensus_content_status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in lists %}
+                <tr>
+                    <td><a href="/detail_{{subtitle}}?bid={{row.bid}}" class="href_cls" target="_blank"><pre>{{row.bid}}</pre></a></td>
+                    <td width="200">{{row.created_at}}</td>
+                    <td>{{row.is_loss_link}}</td>
+                    <td>{{row.product_consensus_content_status}}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+  </div>
+</body>
+</html>

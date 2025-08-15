@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <script src="/jquery.min.js"></script>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <title>ChatGPT|列表</title>
+</head>
+<body>
+  <div class="container">
+      <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">列表</li>
+          </ol>
+      </nav>
+      <div><strong>数据统计</strong></div>
+      <br>
+      <table class="table">
+          <tr>
+              {% for row in day_total %}
+                <td>
+                    {{ row }}
+                </td>
+              {% endfor %}
+          </tr>
+
+          <tr>
+              {% for row in day_total %}
+                <td>
+                    {{ day_total[row] }}
+                </td>
+              {% endfor %}
+          </tr>
+
+      </table>
+      <div>
+          <strong>数据列表（100条）</strong>
+          <a href="/list_research_gpt?{{first_page_link}}">第一页</a>
+          <a href="/list_research_gpt?{{pre_page_link}}">上一页</a>
+          <a href="/list_research_gpt?{{next_page_link}}">下一页</a>
+      </div>
+      <div class="filter">
+          <form action="">
+              <div class="input-group">
+                  <select class="form-select" id="std_status" name="std_status">
+                    <option value="">标准化状态</option>
+                    {% for pr in  std_status_list %}
+                      {% if pr == params['std_status'] %}
+                        <option value="{{pr}}" selected> {{std_status_list[pr]}} </option>
+                      {% else %}
+                        <option value="{{pr}}"> {{std_status_list[pr]}} </option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                  <input type="datetime-local" aria-label="start time" id="start_time" step="1" name="start_time" class="form-control" value="{{params['start_time']}}" placeholder="start time">
+                  <input type="datetime-local" aria-label="end time" id="end_time" step="1" name="end_time" class="form-control" value="{{params['end_time']}}" placeholder="end time">
+                  <input type="text" class="form-control" placeholder="std tag" id="std_tag" name="std_tag" value="{{params['std_tag']}}">
+                  <input type="text" class="form-control" placeholder="bid" id="bid" name="bid" value="{{params['bid']}}">
+                  <button class="btn btn-outline-secondary" type="submit">搜索</button>
+                  <a class="btn btn-outline-secondary" href="/list_research_gpt">重置</a>
+              </div>
+          </form>
+      </div>
+      <br>
+      <table class="table">
+          <thead>
+            <tr>
+                <th>bid</th>
+                <th>is_cut</th>
+                <th>created at</th>
+                <th>dur</th>
+                <th>length</th>
+                <th>port</th>
+                <th>hostname</th>
+                <th>product name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in lists %}
+                <tr>
+                    <th>{{row.bid}}</th>
+                    <th>{{row.is_cut}}</th>
+                    <td width="200">{{row.created_at}}</td>
+                    <td>{{row.duration}}</td>
+                    <td>{{row.text_length}}</td>
+                    <td>{{row.browser_port}}</td>
+                    <td>{{row.hostname}}</td>
+                    <td><a href="/detail_{{subtitle}}?bid={{row.bid}}"><pre>{{row.product_name}}</pre></a></td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+  </div>
+</body>
+</html>

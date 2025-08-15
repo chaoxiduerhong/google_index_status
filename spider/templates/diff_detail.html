@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <title>Diff|详情</title>
+</head>
+<body>
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/list_trans">列表</a></li>
+    <li class="breadcrumb-item active">详情</li>
+</ol>
+<div class="content">
+    <div class="row">
+
+        <div class="col-6">
+            <div class="diff_inner">
+                <p>Type: {{left.type}}</p>
+                <hr>
+                <div class="content-show">
+                    {{left.content|safe}}
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="diff_inner">
+                <p>Type: {{right.type}}</p>
+                <hr>
+                <div class="content-show">
+                    {{right.content|safe}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
