@@ -32,10 +32,9 @@ class Driss:
         """
         try:
             dom = self.driver. \
-                ele((By.ID, "cf-turnstile")). \
-                ele((By.TAG_NAME, "div")).shadow_root. \
-                ele((By.TAG_NAME, "iframe")).ele((By.TAG_NAME, "body")).shadow_root. \
-                ele((By.TAG_NAME, "input"))
+                ele((By.ID, "recaptcha")). \
+                ele((By.TAG_NAME, "div")).ele((By.TAG_NAME, "div")). \
+                ele((By.TAG_NAME, "iframe")).ele((By.ID, "recaptcha-anchor"))
             dom.click()
             return True
         except:

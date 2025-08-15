@@ -180,7 +180,7 @@ class GPTQuery(GPTBase):
                     continue
 
                 # 产品数据检测
-                if "bid" not in product or "product_name" not in product:
+                if "bid" not in product:
                     self.sysLog.log("check primary filed failed, next product...")
                     continue
 
@@ -193,7 +193,7 @@ class GPTQuery(GPTBase):
                 if not self.check_proxy_status():
                     self.sysLog.log("check proxy status Failed switch proxy and sleep 60s...")
                     self.going_restart(is_match_proxy=True)
-                    time.sleep(60)
+                    self.waiting(60)
                     continue
                 self.sysLog.log("Check proxy status Okay, proceeding")
 

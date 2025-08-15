@@ -27,6 +27,18 @@ import urllib.parse
 
 print("start init")
 
+
+def getDissDriver(port):
+    from DrissionPage import ChromiumPage, ChromiumOptions, WebPage
+    from DrissionPage.common import Keys, By
+    co = ChromiumOptions()
+    # 阻止“自动保存密码”的提示气泡
+    co.set_pref('credentials_enable_service', False)
+    # 阻止“要恢复页面吗？Chrome未正确关闭”的提示气泡
+    co.set_argument('--hide-crash-restore-bubble')
+    co_page = ChromiumOptions().set_local_port(port)
+    return ChromiumPage(co_page)
+
 def get_driver(port, browser_host="127.0.0.1"):
     """
     根据端口获取对应driver
@@ -1133,7 +1145,25 @@ def check():
         print(traceback.format_exc())
         return False
 
-print(check())
+
+def auto_robots():
+    """
+    自动化人工点击
+    """
+    driver = getDissDriver(9600)
+    try:
+        dom = driver. \
+            ele((By.ID, "recaptcha")). \
+            ele((By.TAG_NAME, "div")).ele((By.TAG_NAME, "div")). \
+            ele((By.TAG_NAME, "iframe")).ele((By.ID, "recaptcha-anchor"))
+        dom.click()
+        return True
+    except:
+        print(traceback.format_exc())
+        return False
+
+
+auto_robots()
 
 print("end")
 time.sleep(100000)

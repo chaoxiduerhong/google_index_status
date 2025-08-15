@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+from .Driss import Driss
 import utils.common
 from spider.logs.syslog import SysLog
 from config import gpt_conf
@@ -232,7 +232,7 @@ class PageAction:
         # TODO 应该是sorry index 的一个
         """
         try:
-            if "sorry" in self.driver.current_url:
+            if "sorry/index" in self.driver.current_url:
                 return False
             return True
         except:
@@ -256,9 +256,39 @@ class PageAction:
 
     def auto_robots(self):
         """
-        copilot 无法人工校验。一旦出现认为就废了
+        TODO 需要校验和测试
         """
-        return not self.check_robots()
+        idx = 0
+        while True:
+            idx = idx + 1
+            if idx > 3:
+                self.sysLog.log("---**人工校验异常，请联系管理员检测代码**--")
+                return False
+            if self.check_robots():
+                try:
+                    # 检测到人工校验，进行人工校验
+                    drissObj = Driss(self.browser_port)
+                    drissObj.to_click()
+                    print("current robots OK, sleep 6s close other tab")
+                    time.sleep(6)
+                    tabs = self.driver.window_handles
+                    if len(tabs) > 1:
+                        keep_handle = tabs[1]
+                        self.driver.switch_to.window(keep_handle)
+
+                        # 遍历所有 tab，关闭非第二个 tab
+                        for handle in tabs:
+                            if handle != keep_handle:
+                                self.driver.switch_to.window(handle)
+                                self.driver.close()
+                        self.driver.switch_to.window(keep_handle)
+                    time.sleep(3)
+                    self.switch_to_chat_page()
+                    time.sleep(2)
+                except:
+                    continue
+            else:
+                return True
 
     # 自动化登录相关方法
     def login_step_check_use_google_login(self):

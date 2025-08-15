@@ -505,12 +505,15 @@ class GPTBase:
         if self.browser_proxy:
             try:
                 proxy_address = "http://%s:%s" % (gpt_conf.proxy_host, self.browser_proxy['port'])
+                print(proxy_address, "current proxy_address")
                 url = "https://www.google.com/"
                 resp = requests.get(url, timeout=3, proxies={"http": proxy_address, "https": proxy_address})
+                print(resp, "check resp")
                 if resp.status_code == 200:
                     return True
                 return False
             except:
+                print(traceback.format_exc())
                 return False
 
     def ask_js(self, ask_msg):
