@@ -85,7 +85,6 @@ class gptConf:
     # 入口
     url = "https://www.google.com/"
     # login 如果未登录，会跳转到登录界面 TODO invalid
-    login_url = "https://copilot.microsoft.com/login"
 
     # 设置一个dirver 初始化后默认的页面
     driver_default_page = "https://www.google.com/"

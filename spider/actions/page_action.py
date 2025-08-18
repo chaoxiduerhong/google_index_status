@@ -233,8 +233,8 @@ class PageAction:
         """
         try:
             if "sorry/index" in self.driver.current_url:
-                return False
-            return True
+                return True
+            return False
         except:
             return False
 
@@ -1122,7 +1122,7 @@ class PageAction:
         except:
             return False
 
-    def get_search_input(self, query):
+    def get_search_input(self):
         """
         输入 query 进行查询
         """

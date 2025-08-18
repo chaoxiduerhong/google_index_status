@@ -141,7 +141,6 @@ class GPTQuery(GPTBase):
         end_time = utils.common.get_second_utime()
         data = {
             "bid": product['bid'],
-            "product_name": product['product_name'],
             "duration": end_time - start_time,
             "status": search_status,
             "query": query_msg,
@@ -191,9 +190,9 @@ class GPTQuery(GPTBase):
 
                 # 首次运行先分配下发一可用的代理
                 if not self.check_proxy_status():
-                    self.sysLog.log("check proxy status Failed switch proxy and sleep 60s...")
+                    self.sysLog.log("check proxy status Failed switch proxy and sleep 6s...")
                     self.going_restart(is_match_proxy=True)
-                    self.waiting(60)
+                    self.waiting(5)
                     continue
                 self.sysLog.log("Check proxy status Okay, proceeding")
 
